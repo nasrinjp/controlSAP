@@ -46,9 +46,9 @@ function StartService ($ServCount, $ServName) {
     for ( $i = 0; $i -lt $ServCount; $i++ ) {
         $Service = Get-Service $($ServName[$i])
         if ( $Service.Status -eq "Running" ) {
-            "$($ServName[$i])サービスは既に起動しているので、起動処理をスキップします。" >> $LOGFILE 2>&1
+            "$($ServName[$i])サービスは既に起動しているので、起動処理をスキップします。" >> $LOGFILE
         } else {
-            Start-Service $($ServName[$i]) >> $LOGFILE 2>&1
+            Start-Service $($ServName[$i]) >> $LOGFILE
             $Service = Get-Service $($ServName[$i])
             if ( $Service.Status -ne "Running" ) {
                 $ERROR_MSG = "$($ServName[$i])サービスの起動に失敗しました。"
@@ -62,8 +62,8 @@ function StartService ($ServCount, $ServName) {
 # SAPインスタンスを起動する
 # 30分(1800秒)経過しても完全に起動しなければ、タイムアウトとして処理する
 function Exec_sapcontrol ($No, $Msg, $wt=1800, $dt=5) {
-    "${SAPEXE}\sapcontrol.exe -nr $No -prot PIPE -function StartWait $wt $dt" >> $LOGFILE 2>&1
-    & "${SAPEXE}\sapcontrol.exe" -nr $No -prot PIPE -function StartWait $wt $dt >> $LOGFILE 2>&1
+    "${SAPEXE}\sapcontrol.exe -nr $No -prot PIPE -function StartWait $wt $dt" >> $LOGFILE
+    & "${SAPEXE}\sapcontrol.exe" -nr $No -prot PIPE -function StartWait $wt $dt >> $LOGFILE
     if ( $LASTEXITCODE -ne 0 ) {
         $ERROR_MSG = "${Msg}インスタンスの起動に失敗しました。"
         $ERROR_LEVEL = 3
@@ -79,11 +79,11 @@ $STEP_NAME = "INIT"
 New-Item $LOGFILE_PATH -itemType Directory -Force | Out-Null
 
 $DATE = Get-Date -format G
-"****************************************"   >> $LOGFILE 2>&1
-"* START        : ${SCRIPT_PATH}\$SCRIPT_ID" >> $LOGFILE 2>&1
-"* DATE         : $DATE"                     >> $LOGFILE 2>&1
-"* ComputerName : $HOST_NAME"                >> $LOGFILE 2>&1
-"****************************************"   >> $LOGFILE 2>&1
+"****************************************"   >> $LOGFILE
+"* START        : ${SCRIPT_PATH}\$SCRIPT_ID" >> $LOGFILE
+"* DATE         : $DATE"                     >> $LOGFILE
+"* ComputerName : $HOST_NAME"                >> $LOGFILE
+"****************************************"   >> $LOGFILE
 
 # SAPのインスタンス番号やSIDを抽出する
 # SIDs[$i] = SID , $***No = インスタンス番号
@@ -118,13 +118,13 @@ for ( $i = 0; $i -lt $SIDsCount; $i++ ) {
 
     if ( $checkuser -eq 1 ) {
         if ( $AdmUser -notcontains $(whoami) ) {
-            $ERROR_MSG = "このスクリプトは、以下のいずれかのユーザで実行する必要があります。ログオンし直して再実行してください。$AdmUser" >> $LOGFILE 2>&1
+            $ERROR_MSG = "このスクリプトは、以下のいずれかのユーザで実行する必要があります。ログオンし直して再実行してください。$AdmUser" >> $LOGFILE
             $ERROR_LEVEL = 1
             break Root
         }
-        "実行ユーザ確認OK。" >> $LOGFILE 2>&1
+        "実行ユーザ確認OK。" >> $LOGFILE
     } else {
-        "実行ユーザ確認をスキップします。" >> $LOGFILE 2>&1
+        "実行ユーザ確認をスキップします。" >> $LOGFILE
     }
 
     cd $LOGFILE_PATH
@@ -168,23 +168,23 @@ for ( $i = 0; $i -lt $SIDsCount; $i++ ) {
 # 正常終了の場合
 $DATE = Get-Date -format G
 if ( $ERROR_LEVEL -eq 0 ) {
-    "****************************************"   >> $LOGFILE 2>&1
-    "* NORMAL END   : ${SCRIPT_PATH}\$SCRIPT_ID" >> $LOGFILE 2>&1
-    "* DATE         : $DATE"                     >> $LOGFILE 2>&1
-    "* ComputerName : $HOST_NAME"                >> $LOGFILE 2>&1
-    "****************************************"   >> $LOGFILE 2>&1
+    "****************************************"   >> $LOGFILE
+    "* NORMAL END   : ${SCRIPT_PATH}\$SCRIPT_ID" >> $LOGFILE
+    "* DATE         : $DATE"                     >> $LOGFILE
+    "* ComputerName : $HOST_NAME"                >> $LOGFILE
+    "****************************************"   >> $LOGFILE
 
 } else {
 
 # 異常終了の場合
-    "****************************************"   >> $LOGFILE 2>&1
-    "* ERROR END    : ${SCRIPT_PATH}\$SCRIPT_ID" >> $LOGFILE 2>&1
-    "* DATE         : $DATE"                     >> $LOGFILE 2>&1
-    "* ComputerName : $HOST_NAME"                >> $LOGFILE 2>&1
-    "* ERROR STEP   : $STEP_NAME"                >> $LOGFILE 2>&1
-    "* ERROR LEVEL  : $ERROR_LEVEL"              >> $LOGFILE 2>&1
-    "* ERROR MESSAGE: $ERROR_MSG"                >> $LOGFILE 2>&1
-    "****************************************"   >> $LOGFILE 2>&1
+    "****************************************"   >> $LOGFILE
+    "* ERROR END    : ${SCRIPT_PATH}\$SCRIPT_ID" >> $LOGFILE
+    "* DATE         : $DATE"                     >> $LOGFILE
+    "* ComputerName : $HOST_NAME"                >> $LOGFILE
+    "* ERROR STEP   : $STEP_NAME"                >> $LOGFILE
+    "* ERROR LEVEL  : $ERROR_LEVEL"              >> $LOGFILE
+    "* ERROR MESSAGE: $ERROR_MSG"                >> $LOGFILE
+    "****************************************"   >> $LOGFILE
 }
 
 exit $ERROR_LEVEL
