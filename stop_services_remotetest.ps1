@@ -11,10 +11,4 @@ $CommandName = $(Get-Item $PSCommandPath).BaseName
 $LogFile = GenerateLogFilePath -Logdir $LOG_DIR -Logext $LOG_EXTENSION -Command $CommandName
 
 ## Starting services
-StartServices -ServiceList $ServiceList
-
-## Wait 5 seconds
-Start-Sleep -s 5
-
-## Starting SAP instances
-StartSAPInstances -UsrSap $UsrSap -SAPInstances $SAPInstances
+StopRemoteServices -ServiceList $RemoteServiceList -passfile $passfile -RemoteUser $RemoteUser
