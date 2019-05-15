@@ -1,10 +1,10 @@
 ﻿# Define valiables
-. "D:\UTY\config.ps1"
+. "C:\work\config.ps1"
 
 # Main
 ## Load modules
-. "D:\UTY\modules\logger.ps1"
-. "D:\UTY\modules\control_processes.ps1"
+. "C:\work\modules\logger.ps1"
+. "C:\work\modules\control_processes.ps1"
 
 ## Define $LogFile for logger
 $CommandName = $(Get-Item $PSCommandPath).BaseName
