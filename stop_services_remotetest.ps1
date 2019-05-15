@@ -10,5 +10,5 @@
 $CommandName = $(Get-Item $PSCommandPath).BaseName
 $LogFile = GenerateLogFilePath -Logdir $LOG_DIR -Logext $LOG_EXTENSION -Command $CommandName
 
-## Starting services
+## Stopping services
 StopRemoteServices -ServiceList $RemoteServiceList -passfile $passfile -RemoteUser $RemoteUser
