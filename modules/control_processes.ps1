@@ -123,27 +123,41 @@ function StopRemoteServices {
     }
 }
 
+function CheckSAPProcessList {
+    # $rc=3 : GetProcessList succeeded, all processes running correctly
+    # $rc=4 : GetProcessList succeeded, all processes stopped
+    param([string]$UsrSap, [string]$SID, [string]$InstanceName)
+    $Action = "GetProcessList"
+    $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
+    WriteLog -Level Info -Message "Checking SAP instances (${SID}/${InstanceName})..."
+    $rc = ExecuteSapcontrol -script $Scriptblock
+    return $rc
+}
+
 function StartSAPInstances {
     param([string]$UsrSap, [System.Collections.Specialized.OrderedDictionary]$SAPInstances)
     foreach ($SID in $SAPInstances.Keys) {
         foreach ($InstanceName in $SAPInstances[$SID]) {
-            $Action = "StartWait 600 10"
-            $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
-            WriteLog -Level Info -Message "Starting SAP instances (${SID}/${InstanceName})..."
-            $rc = ExecuteSapcontrol -script $Scriptblock
-            if ($rc -ne 0) {
-                WriteLog -Level Error -Message "Starting SAP (${SID}/${InstanceName}) processes failed."
-                exit 1
-            }
-            $Action = "GetProcessList"
-            $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
-            WriteLog -Level Info -Message "Checking SAP instances (${SID}/${InstanceName})..."
-            $rc = ExecuteSapcontrol -script $Scriptblock
+            $rc = CheckSAPProcessList -UsrSap $UsrSap -SID $SID -InstanceName $InstanceName
             if ($rc -ne 3) {
-                WriteLog -Level Error -Message "SAP (${SID}/${InstanceName}) processes not started."
-                exit 1
+                $Action = "StartWait 600 10"
+                $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
+                WriteLog -Level Info -Message "Starting SAP instance (${SID}/${InstanceName})..."
+                $rc = ExecuteSapcontrol -script $Scriptblock
+                if ($rc -ne 0) {
+                    WriteLog -Level Error -Message "Starting SAP (${SID}/${InstanceName}) processes failed."
+                    exit 1
+                }
+                $rc = CheckSAPProcessList -UsrSap $UsrSap -SID $SID -InstanceName $InstanceName
+                if ($rc -ne 3) {
+                    WriteLog -Level Error -Message "SAP (${SID}/${InstanceName}) processes not started."
+                    exit 1
+                }
+                WriteLog -Level Info -Message "Starting SAP instance (${SID}/${InstanceName}) finished successfully."
             }
-            WriteLog -Level Info -Message "Starting SAP instances (${SID}/${InstanceName}) finished successfully."
+            else {
+                WriteLog -Level Info -Message "SAP instance (${SID}/${InstanceName}) is already running."
+            }
         }
     }
 }
@@ -167,23 +181,26 @@ function StopSAPInstances {
 
     foreach ($SID in $SIDList) {
         foreach ($InstanceName in $SAPInstances[$SID]) {
-            $Action = "StopWait 600 10"
-            $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
-            WriteLog -Level Info -Message "Stopping SAP instances (${SID}/${InstanceName})..."
-            $rc = ExecuteSapcontrol -script $Scriptblock
-            if ($rc -ne 0) {
-                WriteLog -Level Error -Message "Stopping SAP (${SID}/${InstanceName}) processes failed."
-                exit 1
-            }
-            $Action = "GetProcessList"
-            $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
-            WriteLog -Level Info -Message "Checking SAP instances (${SID}/${InstanceName})..."
-            $rc = ExecuteSapcontrol -script $Scriptblock
+            $rc = CheckSAPProcessList -UsrSap $UsrSap -SID $SID -InstanceName $InstanceName
             if ($rc -ne 4) {
-                WriteLog -Level Error -Message "SAP (${SID}/${InstanceName}) processes not stopped."
-                exit 1
+                $Action = "StopWait 600 10"
+                $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
+                WriteLog -Level Info -Message "Stopping SAP instance (${SID}/${InstanceName})..."
+                $rc = ExecuteSapcontrol -script $Scriptblock
+                if ($rc -ne 0) {
+                    WriteLog -Level Error -Message "Stopping SAP (${SID}/${InstanceName}) processes failed."
+                    exit 1
+                }
+                $rc = CheckSAPProcessList -UsrSap $UsrSap -SID $SID -InstanceName $InstanceName
+                if ($rc -ne 4) {
+                    WriteLog -Level Error -Message "SAP (${SID}/${InstanceName}) processes not stopped."
+                    exit 1
+                }
+                WriteLog -Level Info -Message "Stopping SAP instance (${SID}/${InstanceName}) finished successfully."
             }
-            WriteLog -Level Info -Message "Stopping SAP instances (${SID}/${InstanceName}) finished successfully."
+            else {
+                WriteLog -Level Info -Message "SAP instance (${SID}/${InstanceName}) already stopped."
+            }
         }
     }
 }
