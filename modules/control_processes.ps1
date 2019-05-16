@@ -182,7 +182,7 @@ function StopSAPInstances {
     foreach ($SID in $SIDList) {
         foreach ($InstanceName in $SAPInstances[$SID]) {
             $rc = CheckSAPProcessList -UsrSap $UsrSap -SID $SID -InstanceName $InstanceName
-            if ($rc -ne 4) {
+            if (($rc -ne 4) -and ($rc -ne 1)) {
                 $Action = "StopWait 600 10"
                 $Scriptblock = GenerateScriptBlock -UsrSap $UsrSap -SID $SID -Instance $InstanceName -Action $Action
                 WriteLog -Level Info -Message "Stopping SAP instance (${SID}/${InstanceName})..."
