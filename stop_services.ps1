@@ -18,3 +18,6 @@ Start-Sleep -s 5
 
 ## Stopping services
 StopServices -ServiceList $ServiceList
+
+## Shutdown
+Stop-Computer -Force
