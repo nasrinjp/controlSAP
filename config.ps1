@@ -4,7 +4,7 @@ $LOG_EXTENSION = ".log"
 $UsrSap = "C:\usr\sap"
 
 # Local instance config
-$ServiceList = @("MSSQLSERVER", "SQLSERVERAGENT", "SQLWriter", "MSSQLFDLauncher", "SQLTELEMETRY", "SAPHostControl", "SAPSID_00", "SAPDAA_98")
+$ServiceList = @("MSSQLSERVER", "SQLSERVERAGENT", "SQLWriter", "MSSQLFDLauncher", "SAPHostControl", "SAPSID_00", "SAPDAA_98")
 $SAPInstances = [ordered]@{SID = "DVEBMGS00" }
 
 # Remote instance config
